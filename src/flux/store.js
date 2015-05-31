@@ -6,6 +6,7 @@ import find from 'lodash/collection/find';
 import findWhere from 'lodash/collection/findWhere';
 import filter from 'lodash/collection/filter';
 
+import window from '../../server/adaptors/window';
 import nulls from './nulls.json';
 import fetcher from '../lib/fetcher';
 

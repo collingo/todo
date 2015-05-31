@@ -18,10 +18,17 @@
   "license": "ISC",
   "browserify": {
     "transform": [
-      "babelify"
+      "babelify",
+      "aliasify"
     ]
   },
+  "aliasify": {
+    "aliases": {
+      "../../server/adaptors/window": "./src/adaptors/window"
+    }
+  },
   "dependencies": {
+    "aliasify": "^1.7.2",
     "autolinker": "^0.17.1",
     "babel": "4.6.6",
     "bower": "^1.4.1",

@@ -95,10 +95,12 @@ router.get('/components', (req, res) => {
  * App Routes
  */
 router.get('/*', (req, res) => {
-  // var App = React.createFactory(require('../src/components/main/view.jsx'));
+  var App = React.createFactory(require('../src/components/main/view.jsx'));
   res.render('index', {
     title: startCase(manifest.name),
-    // app: React.renderToString(App())
+    app: React.renderToString(App({
+      initialUrl: req.protocol + '://' + req.hostname + req.originalUrl
+    }))
   });
 });
 

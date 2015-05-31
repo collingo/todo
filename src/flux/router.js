@@ -2,6 +2,7 @@ import RoutePattern from "route-pattern";
 import urllite from 'urllite';
 import find from 'lodash/collection/find';
 
+import window from '../../server/adaptors/window';
 import manifest from '../../package.json';
 import Actions from './actions';
 
@@ -49,16 +50,16 @@ function setUrl (url, replace) {
   }
 }
 
-function init () {
-  const initialUrl = urllite(window.location.href);
+function init (initialUrl) {
+  const url = urllite(initialUrl || window.location.href);
 
   window.onpopstate = (event) => {
     const path = event.state.pathname + event.state.hash;
     navigate(path, true);
   };
 
-  if (!RoutePattern.fromString('/').matches(initialUrl.pathname)) {
-    navigate(initialUrl.pathname+initialUrl.hash, false, true);
+  if (!RoutePattern.fromString('/').matches(url.pathname)) {
+    navigate(url.pathname+url.hash, false, true);
   } else {
     setUrl(window.location.href, true);
     handlers.home();

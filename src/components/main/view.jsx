@@ -6,8 +6,6 @@ import Store from '../../flux/store';
 import Router from '../../flux/router';
 import TodoList from '../todo-list/view.jsx';
 
-Router.init();
-
 const ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
 const Main = React.createClass({
   displayName: 'Main',
@@ -16,6 +14,9 @@ const Main = React.createClass({
   },
   onStoreChange() {
     this.setState(Store.getData());
+  },
+  componentWillMount() {
+    Router.init(this.props.initialUrl);
   },
   componentDidMount() {
     Store.addChangeListener(this.onStoreChange);
