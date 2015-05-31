@@ -1,0 +1,6 @@
+{
+  "name": "react-project-base",
+  "dependencies": {
+    "lost-grid": "~5.1.6"
+  }
+}

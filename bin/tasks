@@ -1,0 +1,178 @@
+#!/usr/bin/env bash
+app_name=$(node ./bin/getKeyFromManifest.js name)
+app_version=$(node ./bin/getKeyFromManifest.js version)
+app_author=$(node ./bin/getKeyFromManifest.js author)
+db_image_name="rethinkdb"
+db_container_name="${app_name}-db"
+app_image_name="${app_author}/${app_name}:${app_version}"
+app_image_name_latest="${app_author}/${app_name}:latest"
+app_container_name=$app_name
+
+case $1 in
+# TODO: Don't assume the current directory
+install)
+  alias tasks='./bin/tasks'
+  ;;
+upgrade)
+  ./bin/tasks pull && ./bin/tasks rm && ./bin/tasks init
+  ;;
+pull)
+  ./bin/tasks pullDb && ./bin/tasks pullApp
+  ;;
+pullDb)
+  docker pull $db_image_name
+  ;;
+pullApp)
+  docker pull $app_image_name
+  ;;
+build)
+  docker build -t $app_image_name . && docker build -t $app_image_name_latest .
+  ;;
+rm)
+  ./bin/tasks rmDb && ./bin/tasks rmApp
+  ;;
+rmDb)
+  docker rm -f $db_container_name
+  ;;
+rmApp)
+  docker rm -f $app_container_name
+  ;;
+run)
+  ./bin/tasks runDb && ./bin/tasks runApp
+  ;;
+runDb)
+  docker run -d \
+    -p 8080:8080 \
+    --name $db_container_name \
+    $db_image_name
+  ;;
+runApp)
+  docker run -d  \
+    -p 8888:8888 \
+    -e VIRTUAL_HOST=localhost:8888 \
+    --name $app_container_name \
+    --link $db_container_name:db \
+    -w /home/app \
+    -v $(pwd)/sensitive:/home/app/sensitive \
+    -v $(pwd)/package.json:/home/app/package.json \
+    -v $(pwd)/scripts:/home/app/scripts \
+    -v $(pwd)/public:/home/app/public \
+    -v $(pwd)/package.json:/home/app/package.json \
+    -v $(pwd)/bower.json:/home/app/bower.json \
+    -v $(pwd)/docs:/home/app/docs \
+    -v $(pwd)/logs:/home/app/logs \
+    -v $(pwd)/server:/home/app/server \
+    -v $(pwd)/src:/home/app/src \
+    $app_image_name
+  ;;
+runProd)
+  ./bin/tasks runProdDb && ./bin/tasks runProdApp
+  ;;
+runProdDb)
+  docker run -d \
+    -p 127.0.0.1:8080:8080 \
+    -p 127.0.0.1:28015:28015 \
+    -p 127.0.0.1:29015:29015 \
+    -e NODE_ENV=production \
+    --name $db_container_name \
+    -w /data \
+    -v /home/apps/${app_name}/data:/data \
+    $db_image_name
+  ;;
+runProdApp)
+  docker run -d \
+    -p 127.0.0.1:8888:8888 \
+    -e NODE_ENV=production \
+    -e VIRTUAL_HOST=${app_name}.ustwo.com \
+    -e VIRTUAL_PROTO=https \
+    --restart=on-failure:3 \
+    --name $app_container_name \
+    --link $db_container_name:db \
+    -w /home/app \
+    -v /home/apps/${app_name}/sensitive:/home/app/sensitive \
+    -v /home/ubuntu/logs:/home/app/logs \
+    $app_image_name
+  ;;
+start)
+  docker start $app_container_name
+  ;;
+restart)
+  docker restart $app_container_name
+  ;;
+stop)
+  docker stop $app_container_name
+  ;;
+seed)
+  docker exec -t $app_container_name npm run babel scripts/seed-schema && docker exec -t $app_container_name npm run babel scripts/seed-users
+  ;;
+update)
+  docker exec -t $app_container_name npm install && docker exec -t $app_container_name npm run bower
+  ;;
+compile)
+  ./bin/tasks compileApp && ./bin/tasks compileVendors
+  ;;
+compileApp)
+  docker exec -t $app_container_name npm run compile
+  ;;
+compileVendors)
+  docker exec -t $app_container_name npm run vendors
+  ;;
+shell)
+  docker exec -it $app_container_name bash
+  ;;
+# TODO: Fix standalone
+exec)
+  # remove the first parameter (exec) meanwhile there is no real parameter
+  # handler.
+  shift
+  docker exec -it $app_container_name $@
+  ;;
+watch)
+  fswatch -or -l 0.2 -e \.styl $(pwd)/src \
+  | xargs -n1 docker exec $app_container_name npm run compile
+  ;;
+test)
+  if [[ $2 = '' ]]; then
+    docker exec -t $app_container_name npm test \
+      src/lib/*test.js \
+      src/lib/**/*test.js \
+      src/components/**/*.js
+  else
+    docker exec -t $app_container_name npm test \
+      src/components/${2:-**}/*.js
+  fi
+  ;;
+tdd)
+  fswatch -or -l 0.2 -E \.styl $(pwd)/src/components/$2 \
+  | xargs -n1 -I {} docker exec -t $app_container_name npm test src/components/$2/*.js
+  ;;
+logs)
+  docker logs -f $app_container_name
+  ;;
+*)
+  cat <<-EOS
+help           - This help
+pull           - Pulls both images fresh from the registry
+build          - Builds the db and app docker images
+run            - Spins up new db and app containers
+seed           - Seeds the database using predefined scripts
+compile        - Compiles all the client logic
+rm             - Destroys the containers
+logs           - Tails the server logs
+shell          - Opens an interactive shell to the docker container.
+start          - Starts the application container
+restart        - Restarts the application container
+stop           - Stops the application container
+tdd            - Initialises tdd workflow by watching .js* files for the specified component and running it's unit tests e.g. './bin/tasks tdd header'
+test           - Runs all tests or optionally just for the component name passed e.g. './bin/tasks test header'
+update         - Installs npm packages
+upgrade        - Downloads the latest image, removes the current container and spins up a new container
+watch          - Watches and compiles jsx
+
+Protip: Run the following to add a shortcut to current shell session...
+
+alias t="./bin/tasks"
+
+EOS
+  ;;
+esac

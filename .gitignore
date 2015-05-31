@@ -1,0 +1,13 @@
+.vagrant
+.tmp
+tmp
+node_modules
+bower_components
+npm-debug.log
+logs/*
+!logs/readme.md
+.DS_Store
+public/**/*.css
+public/**/*.js
+sensitive/*
+!sensitive/readme.md

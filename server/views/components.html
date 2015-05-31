@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Components</title>
+    <link rel='stylesheet' href="/index.css" />
+  </head>
+  <body id="deal-components">
+    <h1>Components</h1>
+    <ol>
+      <% components.forEach(function (component) { %>
+        <li><a href="/components/<%= component %>"><%= component %></a></li>
+      <% }); %>
+    </ol>
+  </body>
+</html>
