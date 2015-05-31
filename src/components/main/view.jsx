@@ -2,9 +2,10 @@
 
 import React from 'react/addons';
 
+import Actions from '../../flux/actions';
 import Store from '../../flux/store';
 import Router from '../../flux/router';
-import Example from '../example/view.jsx';
+import TodoList from '../todo-list/view.jsx';
 
 Router.init();
 
@@ -24,12 +25,21 @@ const Main = React.createClass({
     Store.removeChangeListener(this.onStoreChange);
   },
   render() {
+    var todo = this.state.currentTodo;
     return (
-      <div>
-        Main
-        <Example />
+      <div id="TodoApp">
+        <h1>{todo.text || 'Todo'}</h1>
+        {this.renderBack()}
+        <TodoList node={todo} />
       </div>
     );
+  },
+  renderBack() {
+    return this.state.currentTodo.parent !== undefined ? (<button onClick={this.clickBack}>Back</button>) : null;
+  },
+  clickBack(e) {
+    e.preventDefault();
+    Actions.setCurrentTodo(this.state.currentTodo.parent);
   }
 });
 

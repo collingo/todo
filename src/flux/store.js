@@ -9,9 +9,56 @@ import filter from 'lodash/collection/filter';
 import nulls from './nulls.json';
 import fetcher from '../lib/fetcher';
 
+const todos = [{
+  id: 0,
+  text: 'Shopping',
+  children: [1,2,3]
+}, {
+  id: 1,
+  parent: 0,
+  text: 'Eggs',
+}, {
+  id: 2,
+  parent: 0,
+  text: 'Bread',
+  children: [4]
+}, {
+  id: 3,
+  parent: 0,
+  text: 'Milk'
+}, {
+  id: 4,
+  parent: 2,
+  text: 'Flour',
+  children: [5]
+}, {
+  id: 5,
+  parent: 4,
+  text: 'Grain'
+}];
+
 const _data = {
-  currentPage: 'home'
+  currentPage: 'home',
+  currentIndex: 0,
+  currentTodo: getTodo(0)
 };
+
+function getTodo(index, shallow) {
+  const todo = findWhere(todos, {
+    id: index
+  });
+  return shallow ? todo : populateChildren(todo);
+}
+
+function populateChildren(todo) {
+  todo = clone(todo);
+  if(todo.children) {
+    todo.children = todo.children.map((childIndex) => {
+      return getTodo(childIndex, true);
+    });
+  }
+  return todo;
+}
 
 const Store = assign({}, EventEmitter.prototype, {
 
@@ -98,6 +145,11 @@ module.exports = {
   // add Store methods here
   setCurrentPage(newPage) {
     _data.currentPage = newPage;
+    Store.emitChange();
+  },
+  setCurrentTodo(tid) {
+    _data.currentIndex = tid;
+    _data.currentTodo = getTodo(tid);
     Store.emitChange();
   }
 };
