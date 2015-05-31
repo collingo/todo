@@ -10,37 +10,37 @@ import nulls from './nulls.json';
 import fetcher from '../lib/fetcher';
 
 const todos = [{
-  id: 0,
+  id: '0',
   text: 'Shopping',
-  children: [1,2,3]
+  children: ['1','2','3']
 }, {
-  id: 1,
-  parent: 0,
+  id: '1',
+  parent: '0',
   text: 'Eggs',
 }, {
-  id: 2,
-  parent: 0,
+  id: '2',
+  parent: '0',
   text: 'Bread',
-  children: [4]
+  children: ['4']
 }, {
-  id: 3,
-  parent: 0,
+  id: '3',
+  parent: '0',
   text: 'Milk'
 }, {
-  id: 4,
-  parent: 2,
+  id: '4',
+  parent: '2',
   text: 'Flour',
-  children: [5]
+  children: ['5']
 }, {
-  id: 5,
-  parent: 4,
+  id: '5',
+  parent: '4',
   text: 'Grain'
 }];
 
 const _data = {
-  currentPage: 'home',
-  currentIndex: 0,
-  currentTodo: getTodo(0)
+  currentPage: 'todos',
+  currentIndex: '0',
+  currentTodo: getTodo('0')
 };
 
 function getTodo(index, shallow) {
@@ -143,11 +143,11 @@ module.exports = {
   removeChangeListener: Store.removeChangeListener,
 
   // add Store methods here
-  setCurrentPage(newPage) {
+  setPage(newPage) {
     _data.currentPage = newPage;
     Store.emitChange();
   },
-  setCurrentTodo(tid) {
+  setTodo(tid) {
     _data.currentIndex = tid;
     _data.currentTodo = getTodo(tid);
     Store.emitChange();

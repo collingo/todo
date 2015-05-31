@@ -7,7 +7,14 @@ import Actions from './actions';
 
 const handlers = {
   home() {
-    Actions.goTo('home');
+    navigate('/todos/0', false, true);
+  },
+  todos() {
+    navigate('/todos/0', false, true);
+  },
+  todo(tid) {
+    Actions.goTo('todos');
+    Actions.setTodo(tid);
   }
 }
 
@@ -20,7 +27,9 @@ const handlers = {
   }
 */
 const routes = {
-  '/': handlers.home
+  '/': handlers.home,
+  '/todos': handlers.todos,
+  '/todos/:tid': handlers.todo
 };
 
 function notfound (url) {

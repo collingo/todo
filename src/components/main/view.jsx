@@ -2,7 +2,6 @@
 
 import React from 'react/addons';
 
-import Actions from '../../flux/actions';
 import Store from '../../flux/store';
 import Router from '../../flux/router';
 import TodoList from '../todo-list/view.jsx';
@@ -39,7 +38,7 @@ const Main = React.createClass({
   },
   clickBack(e) {
     e.preventDefault();
-    Actions.setCurrentTodo(this.state.currentTodo.parent);
+    Router.navigate(['/todos', this.state.currentTodo.parent].join('/'));
   }
 });
 

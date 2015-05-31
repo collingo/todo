@@ -2,7 +2,7 @@
 
 import React from 'react/addons';
 
-import Actions from '../../flux/actions';
+import Router from '../../flux/router';
 
 const TodoListItem = React.createClass({
   displayName: 'TodoListItem',
@@ -15,7 +15,7 @@ const TodoListItem = React.createClass({
   },
   handleClick: function (e) {
     e.preventDefault();
-    Actions.setCurrentTodo(this.props.todo.id);
+    Router.navigate(['/todos', this.props.todo.id].join('/'));
   }
 });
 
