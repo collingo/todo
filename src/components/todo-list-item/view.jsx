@@ -8,14 +8,12 @@ import Router from '../../flux/router';
 const TodoListItem = React.createClass({
   displayName: 'TodoListItem',
   render() {
-    const todo = this.props.todo;
     const classes = classnames('todo-list-item', {
-      children: !!todo.children
+      children: !!this.props.todo.children
     });
     return (
-      <li className={classes} onClick={this.getClickHandler()}>
-        <span>{todo.text}</span>
-        {this.renderCount()}
+      <li className={classes}>
+        {this.renderTodoContent()}
       </li>
     );
   },
@@ -23,15 +21,26 @@ const TodoListItem = React.createClass({
     const todo = this.props.todo;
     return todo.children ? <span>{todo.children.length}</span> : null;
   },
-  getClickHandler() {
-    let handler;
+  renderTodoContent() {
+    const todo = this.props.todo;
+    let content = (
+      <span>
+        <span>{todo.text}</span>
+        {this.renderCount()}
+      </span>
+    );
     if(this.props.todo.children) {
-      handler = (e) => {
-        e.preventDefault();
-        Router.navigate(['/todos', this.props.todo.id].join('/'));
-      };
+      content = (
+        <a href={['/todos', this.props.todo.id].join('/')} onClick={this.onClickTodo}>
+          {content}
+        </a>
+      );
     }
-    return handler;
+    return content;
+  },
+  onClickTodo(e) {
+    e.preventDefault();
+    Router.navigate(['/todos', this.props.todo.id].join('/'));
   }
 });
 

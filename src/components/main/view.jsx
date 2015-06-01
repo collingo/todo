@@ -35,7 +35,7 @@ const Main = React.createClass({
     );
   },
   renderBack() {
-    return this.state.currentTodo.parent !== undefined ? (<button onClick={this.clickBack}>Back</button>) : null;
+    return this.state.currentTodo.parent !== undefined ? (<a href={['/todos', this.state.currentTodo.parent].join('/')} onClick={this.clickBack}>Back</a>) : null;
   },
   clickBack(e) {
     e.preventDefault();
